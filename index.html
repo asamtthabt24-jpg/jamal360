@@ -12,7 +12,8 @@
         .clickable:hover { opacity: 0.7; }
         #bookingModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .card { background: white; padding: 30px; border-radius: 20px; width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; text-align: inherit; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; text-align: inherit; font-family: inherit; }
+        textarea { height: 100px; resize: none; }
         .btn { background: rgba(234, 110, 0, 1); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
@@ -59,7 +60,6 @@
   </div>
 
   <div id="moments" style="left: 330px; top: 1539px; position: absolute; color: rgba(0, 0, 0, 0.77); font-size: 24px; font-weight: 600">معك في كل لحظة مميزة</div>
-  
   <img style="width: 267px; height: 262px; left: 316px; top: 1609px; position: absolute; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 10px" src="https://placehold.co/267x262" />
   <img style="width: 135px; height: 117px; left: 9px; top: 1609px; position: absolute; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 10px" src="https://placehold.co/135x117" />
   <img style="width: 135px; height: 117px; left: 171px; top: 1609px; position: absolute; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 10px" src="https://placehold.co/135x117" />
@@ -79,14 +79,14 @@
   <div style="left: 376px; top: 1827px; position: absolute; text-align: right; color: white; font-size: 20px; font-weight: 800">في مناسباتك العائلية</div>
 
   <div style="width: 595px; height: 320px; left: 0px; top: 2019px; position: absolute; background: rgba(234, 110, 0, 0.76)"></div>
-  <img style="width: 147px; height: 67px; left: 436px; top: 2075px; position: absolute" src="https://placehold.co/147x67" />
+  <img style="width: 147px; height: 67px; left: 436px; top: 2075px; position: absolute" src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 2.png" />
   
   <div onclick="openM()" class="clickable" style="width: 118px; height: 47px; left: 238px; top: 1931px; position: absolute; background: rgba(234, 110, 0, 0.76); box-shadow: 0px 4px 4.8px 2px rgba(0, 0, 0, 0.25); border-radius: 50px"></div>
   <div id="t3" style="left: 264px; top: 1945px; position: absolute; color: white; font-size: 16px; font-weight: 600; pointer-events: none;">احجز الآن!</div>
 
   <div id="follow" style="left: 42px; top: 2194px; position: absolute; color: white; font-size: 16px; font-weight: 600">تابعنا</div>
   <a href="https://www.instagram.com/jamal360i?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank">
-    <img class="clickable" style="width: 25px; height: 25px; left: 59px; top: 2233px; position: absolute;" src="https://placehold.co/25x25" />
+    <img class="clickable" style="width: 25px; height: 25px; left: 59px; top: 2233px; position: absolute;" src="Ellipse 5.png" />
   </a>
   <img style="width: 21px; height: 25px; left: 24px; top: 2233px; position: absolute;" src="https://placehold.co/21x25" />
 
@@ -98,16 +98,17 @@
         <input type="text" id="full_name" placeholder="الاسم الكامل">
         <input type="tel" id="phone" placeholder="رقم الجوال">
         <input type="text" id="city" placeholder="المدينة">
+        <textarea id="description" placeholder="وصف الطلب (مثال: أحتاج مصور واحد لجلسة خارجية)"></textarea>
+        
         <button class="btn" id="submitBtn" onclick="saveToSupabase()">إرسال الطلب</button>
         <p onclick="document.getElementById('bookingModal').style.display='none'" class="clickable" style="color:#888; font-size:12px; margin-top:10px;">إلغاء</p>
     </div>
 </div>
 
 <script>
-    // إعدادات Supabase
-   const SUPABASE_URL = 'https://drvikrwgmtbyazemrfsp.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRydmlrcndnbXRieWF6ZW1yZnNwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTE4NzY5NCwiZXhwIjoyMDgwNzYzNjk0fQ.m0UtXXch55ck9114oHRoEPPNHJnT3_pVlEG5v0T4mM8';
-   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_URL = 'https://drvikrwgmtbyazemrfsp.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRydmlrcndnbXRieWF6ZW1yZnNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxODc2OTQsImV4cCI6MjA4MDc2MzY5NH0.51gKLrtPO7XOYpubfB2GC5ehpo0GljCv0hiYvlpkLTc';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function openM() { document.getElementById('bookingModal').style.display = 'flex'; }
 
@@ -115,16 +116,30 @@
         const name = document.getElementById('full_name').value;
         const phone = document.getElementById('phone').value;
         const city = document.getElementById('city').value;
+        const desc = document.getElementById('description').value; // جلب الوصف
         const btn = document.getElementById('submitBtn');
 
-        if(!name || !phone || !city) { alert('يرجى ملء الحقول'); return; }
+        if(!name || !phone || !city) { alert('يرجى ملء الحقول الأساسية'); return; }
 
         btn.disabled = true; btn.innerText = 'جاري الإرسال...';
 
-        const { error } = await _supabase.from('bookings').insert([{ full_name: name, phone: phone, city: city }]);
+        // إضافة حقل description للإرسال
+        const { error } = await _supabase.from('bookings').insert([
+            { full_name: name, phone: phone, city: city, description: desc }
+        ]);
 
-        if (error) { alert('خطأ في الإرسال'); } 
-        else { alert('تم بنجاح!'); document.getElementById('bookingModal').style.display = 'none'; }
+        if (error) { 
+            alert('حدث خطأ: ' + error.message); 
+            console.log(error);
+        } else { 
+            alert('تم بنجاح!'); 
+            document.getElementById('bookingModal').style.display = 'none';
+            // تفريغ الحقول
+            document.getElementById('full_name').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('city').value = '';
+            document.getElementById('description').value = '';
+        } 
         
         btn.disabled = false; btn.innerText = 'إرسال الطلب';
     }
@@ -140,4 +155,4 @@
 </script>
 
 </body>
-</html
+</html>
