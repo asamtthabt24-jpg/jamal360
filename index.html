@@ -1,179 +1,211 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="mainHtml">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jamal Platform | جمال</title>
+    <title>منصة جمال | Jamal</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        :root { --main-orange: rgba(234, 110, 0, 0.76); --main-blue: #204191; }
-        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: white; overflow-x: hidden; color: black; }
+        :root { 
+            --main-orange: rgba(234, 110, 0, 0.85); 
+            --main-blue: #204191; 
+            --text-gray: rgba(0, 0, 0, 0.7);
+        }
         
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: white; color: black; line-height: 1.6; overflow-x: hidden; }
+
         /* الهيدر */
-        .header { width: 100%; height: 65px; background: white; box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; box-sizing: border-box; position: sticky; top: 0; z-index: 1000; }
-        .header-logo { width: 110px; height: auto; object-fit: contain; }
-        .lang-switch { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--main-blue); }
+        .header { width: 100%; height: 65px; background: white; box-shadow: 0px 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; padding: 0 5%; box-sizing: border-box; position: sticky; top: 0; z-index: 1000; }
+        .logo-top { height: 40px; }
+        .header-btn { background: var(--main-orange); border-radius: 50px; padding: 10px 25px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; border: none; }
 
-        /* قسم الصورة العلوية الضخم */
-        .hero-section { width: 100%; height: 800px; overflow: hidden; position: relative; background: #f0f0f0; }
-        .hero-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        /* البنر الرئيسي */
+        .hero { width: 100%; padding: 20px 0; text-align: center; }
+        .hero-img { width: 90%; max-width: 1100px; height: auto; border-radius: 30px; box-shadow: 0px 10px 30px rgba(0,0,0,0.1); }
+        
+        .btn-booking-medium { 
+            background: var(--main-orange); color: white; border: none; 
+            width: 220px; height: 60px; border-radius: 50px; 
+            font-size: 20px; font-weight: bold; cursor: pointer; 
+            margin: 30px auto; display: block; transition: 0.3s;
+            box-shadow: 0px 5px 15px rgba(234, 110, 0, 0.3);
+        }
+        .btn-booking-medium:hover { transform: translateY(-3px); box-shadow: 0px 8px 20px rgba(234, 110, 0, 0.4); }
 
-        .container { max-width: 700px; margin: 0 auto; padding: 40px 20px; position: relative; }
-
-        /* تنسيق العنوان وعلامة الاستفهام */
-        .main-title-box { text-align: center; margin: 50px 0; }
-        .main-title-box h1 { font-size: 38px; font-weight: 700; color: #222; margin-bottom: 15px; }
-        .img-question-wrap { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 30px 0; }
-        .sub-img { width: 83px; height: 56px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #eee; }
-        .q-mark { font-size: 60px; font-weight: 900; color: var(--main-blue); line-height: 1; }
-
-        .main-title-box p { font-size: 19px; color: #444; line-height: 1.6; }
-
-        /* الأزرار */
-        .btn-main { background: var(--main-orange); color: white; border: none; border-radius: 50px; padding: 16px 50px; font-size: 20px; font-weight: 600; cursor: pointer; transition: 0.3s; box-shadow: 0px 5px 15px rgba(234, 110, 0, 0.4); display: inline-block; text-decoration: none; }
-        .btn-main:hover { transform: translateY(-5px); box-shadow: 0px 10px 25px rgba(234, 110, 0, 0.5); }
+        /* قسم العنوان */
+        .intro-section { text-align: center; padding: 20px; max-width: 850px; margin: 0 auto; }
+        .intro-section h1 { font-size: clamp(24px, 5vw, 34px); color: var(--text-gray); font-weight: 800; margin-bottom: 5px; }
+        .intro-section h1 span { color: var(--main-blue); }
+        .q-mark-wrapper { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 15px 0; }
+        .small-center-img { width: 80px; height: auto; border-radius: 8px; }
+        .question-mark { font-size: 48px; color: var(--main-blue); font-weight: 900; line-height: 1; }
+        .intro-desc { font-size: 18px; color: var(--text-gray); font-weight: 500; max-width: 600px; margin: 0 auto; }
 
         /* المميزات */
-        .feature-row { display: flex; align-items: center; gap: 25px; margin-bottom: 70px; flex-wrap: wrap-reverse; }
-        .feature-row.rev { flex-wrap: wrap; }
-        .feature-img { width: 250px; height: auto; border-radius: 15px; box-shadow: 0px 5px 20px rgba(0,0,0,0.15); }
-        .feature-text { flex: 1; min-width: 250px; }
-        .badge { width: 40px; height: 40px; background: var(--main-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 15px; }
+        .container { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
+        .feature-item { display: flex; align-items: center; gap: 50px; margin-bottom: 80px; flex-wrap: wrap; }
+        .feature-item.reverse { flex-direction: row-reverse; }
+        .feature-img { flex: 1; min-width: 300px; height: 320px; border-radius: 20px; object-fit: cover; box-shadow: 0px 10px 25px rgba(0,0,0,0.08); }
+        .feature-text { flex: 1; min-width: 300px; }
+        .circle-num { width: 45px; height: 45px; background: var(--main-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+        .feature-text h2 { font-size: 26px; color: #222; margin-bottom: 15px; }
 
         /* شبكة الصور */
-        .moments-container { margin-top: 60px; text-align: center; }
-        .grid-layout { display: grid; grid-template-columns: 1fr 1fr 2fr; grid-template-rows: 150px 150px; gap: 15px; margin: 30px 0; }
-        .grid-item { position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); }
+        .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1100px; margin: 30px auto; padding: 0 15px; }
+        .grid-item { position: relative; border-radius: 15px; overflow: hidden; height: 260px; }
+        .grid-item.large { grid-column: span 2; grid-row: span 2; height: 535px; }
         .grid-item img { width: 100%; height: 100%; object-fit: cover; }
-        .grid-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; }
-        .big-grid { grid-column: 3; grid-row: 1 / span 2; }
+        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; }
 
-        /* الفوتر وأيقونة الانستجرام المكبرة */
-        .footer { background: var(--main-orange); color: white; padding: 60px 20px; margin-top: 80px; }
-        .footer-content { max-width: 700px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .footer-social a { color: white; font-size: 45px; text-decoration: none; transition: 0.3s; display: inline-block; }
-        .footer-social a:hover { transform: scale(1.2); }
+        /* الفوتر المحدث */
+        .footer { background: var(--main-orange); color: white; padding: 40px 8%; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; }
+        .footer-right img { height: 50px; filter: brightness(0) invert(1); margin-bottom: 10px; }
+        .footer-left { display: flex; gap: 60px; } /* مسافة بين تواصل معنا والقانوني */
+        .footer-column h4 { margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid rgba(255,255,255,0.3); display: inline-block; padding-bottom: 5px; }
+        .footer-column p, .footer-column a { margin: 5px 0; font-size: 15px; color: white; text-decoration: none; display: block; opacity: 0.9; }
+        .footer-column a:hover { opacity: 1; text-decoration: underline; }
+        .insta-footer-link { display: flex; align-items: center; gap: 8px; }
+        .insta-footer-link i { font-size: 20px; }
 
-        /* نافذة الحجز */
-        #bookingModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .modal-card { background: white; width: 90%; max-width: 450px; padding: 40px; border-radius: 30px; }
-        input, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
+        /* المودال */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .modal-content { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 450px; position: relative; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { position: absolute; right: 15px; top: 15px; color: var(--main-blue); font-size: 18px; }
+        .modal-content input, .modal-content textarea { width: 100%; padding: 14px 45px 14px 15px; border: 1.5px solid #eee; border-radius: 12px; font-family: inherit; box-sizing: border-box; }
+        .submit-btn { width: 100%; background: var(--main-blue); color: white; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
         @media (max-width: 768px) {
-            .hero-section { height: 500px; }
-            .grid-layout { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
-            .big-grid { grid-column: span 2; height: 250px; }
+            .footer { flex-direction: column; text-align: center; align-items: center; }
+            .footer-left { gap: 30px; flex-direction: row; }
         }
     </style>
 </head>
 <body>
 
-<header class="header">
-    <div class="lang-switch" onclick="toggleLang()">
-        <img src="translate 1.png" alt="lang" style="width: 20px;">
-        <span id="langLabel">English</span>
-    </div>
-    <img src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 2.png" class="header-logo" alt="Logo">
-</header>
+    <header class="header">
+        <button class="header-btn" onclick="openModal()">احجز الآن!</button>
+        <img src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 2.png" class="logo-top">
+    </header>
 
-<div class="hero-section">
-    <img src="Rectangle 4.png" class="hero-img" alt="Main Hero Image">
-</div>
-
-<main class="container">
-    <div style="text-align: center; margin-bottom: 50px;">
-        <button class="btn-main" onclick="openM()" id="btn_hero">احجز الآن!</button>
-    </div>
-
-    <div class="main-title-box">
-        <h1 id="mainH">لماذا يفضل العملاء منصة <span id="spanJ">jamal</span>؟</h1>
+    <div class="hero">
+        <img src="Rectangle 4 (1).png" class="hero-img">
+        <button class="btn-booking-medium" onclick="openModal()">احجز الآن!</button>
         
-        <div class="img-question-wrap">
-            <img src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 2.png" class="sub-img">
-            <span class="q-mark">؟</span>
-        </div>
-
-        <p id="mainP">أصبحت الخيار الجديد لمن يبحث عن مصور موثوق بطريقة سهلة و واضحة</p>
+        <section class="intro-section">
+            <h1>لماذا يفضل العملاء منصة </h1>
+            <div class="q-mark-wrapper">
+                <img src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 2.png" class="small-center-img">
+                <span class="question-mark">؟</span>
+            </div>
+            <p class="intro-desc">أصبحت الخيار الجديد لمن يبحث عن مصور موثوق بطريقة سهلة وواضحة</p>
+        </section>
     </div>
 
-    <div class="feature-row">
-        <div class="feature-text">
-            <div class="badge">1</div>
-            <h3 id="f1T">صُممت لتلبية احتياجات التصوير في السعودية</h3>
-            <p id="f1D">نحن نبني شبكة متنامية من المصورين الموهوبين بمختلف مناطق المملكة لتغطية الأعراس والفعاليات.</p>
+    <div class="container">
+        <div class="feature-item">
+            <div class="feature-text"><div class="circle-num">1</div><h2>صُممت لتلبية احتياجات التصوير في السعودية</h2><p>نحن نبني شبكة متنامية من المصورين الموهوبين من مختلف مناطق المملكة  لتغطية الأعراس، الفعاليات، جلسات المحتوى، وأكثر</p></div>
+            <img src="Group 1 (1).png" class="feature-img">
         </div>
-        <img src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 1.png" class="feature-img">
-    </div>
-
-    <div class="feature-row rev">
-        <img src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 3.png" class="feature-img">
-        <div class="feature-text">
-            <div class="badge">2</div>
-            <h3 id="f2T">ندعم المصورين بالفرص التي يحتاجونها</h3>
-            <p id="f2D">سواء كنت في بداية مشوارك أو تطور عملك، توفر لك منصة ذكية لحجز الجلسات وإبراز أعمالك.</p>
+        <div class="feature-item reverse">
+            <div class="feature-text"><div class="circle-num">2</div><h2>ندعم المصورين بالفرص التي يحتاجونها</h2><p>سواء كنت في بداية مشوارك أو تطور عملك، توفر لك منصة ذكية لحجز الجلسات وإبراز أعمالك – لن يوقفك شيء</p></div>
+            <img src="Group 1 (2).png" class="feature-img">
+        </div>
+        <div class="feature-item">
+            <div class="feature-text"><div class="circle-num">3</div><h2>تجربة مصممة خصيصًا لك</h2><p>نوصلك بالمصور الأنسب لك، وندعمك لاتخاذ قرار حجز واثق – بلغتك، وفي مدينتك، وبالأسلوب الذي يناسبك</p></div>
+            <img src="Group 1 (4).png" class="feature-img">
         </div>
     </div>
 
-    <div class="feature-row">
-        <div class="feature-text">
-            <div class="badge">3</div>
-            <h3 id="f3T">تجربة مصممة خصيصًا لك</h3>
-            <p id="f3D">نوصلك بالمصور الأنسب لك، وندعمك لاتخاذ قرار حجز واثق بلغتكم وفي مدينتكم.</p>
+    <section class="moments-section">
+        <h2 style="text-align: center; color: var(--text-gray);">معك في كل لحظة مميزة</h2>
+        <div class="grid-container">
+            <div class="grid-item large"><img src="wearing-the-traditional-saudi-dress-thumbnail-91446.webp"><div class="overlay">في مناسباتك العائلية</div></div>
+            <div class="grid-item"><img src="10782156-1503954469.jpg"><div class="overlay">في فرحك</div></div>
+            <div class="grid-item"><img src="كلمات_عن_التخرج.jpg"><div class="overlay">في تخرجك</div></div>
+            <div class="grid-item"><img src="358087669.webp"><div class="overlay">تسويق منتجاتك</div></div>
+            <div class="grid-item"><img src="pngtree-night-landscape-with-a-lightning-tent-near-moun.jpg"><div class="overlay">في عالمك</div></div>
         </div>
-        <img src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 4.png" class="feature-img">
+        <button class="btn-booking-medium" onclick="openModal()">احجز الآن!</button>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-right">
+            <img src="c3208e27-5c09-4803-a4cb-22ca1938ba9c 5 (1).png">
+            <p style="font-size: 13px; opacity: 0.8;">منصتكم الأولى لتوثيق أجمل اللحظات.</p>
+        </div>
+
+        <div class="footer-left">
+            <div class="footer-column">
+                <h4>تواصل معنا</h4>
+                <a href="https://www.instagram.com/jamal360i" target="_blank" class="insta-footer-link">
+                    <i class="fab fa-instagram"></i> الإنستجرام
+                </a>
+            </div>
+
+            <div class="footer-column">
+                <h4>قانوني</h4>
+                <a href="#">شروط الاستخدام</a>
+                <a href="#">سياسة الخصوصية</a>
+            </div>
+        </div>
+    </footer>
+
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span onclick="closeModal()" style="position:absolute; left:20px; top:15px; cursor:pointer; font-size:25px; color:#999;">&times;</span>
+            <h2>طلب حجز جديد</h2>
+            <form id="bookingForm">
+                <div class="input-group"><i class="fas fa-user"></i><input type="text" id="name" placeholder="الاسم الكامل" required></div>
+                <div class="input-group"><i class="fas fa-phone"></i><input type="tel" id="phone" placeholder="رقم الجوال" required></div>
+                <div class="input-group"><i class="fas fa-map-marker-alt"></i><input type="text" id="city" placeholder="المدينة" required></div>
+                <div class="input-group"><i class="fas fa-calendar-alt"></i><input type="date" id="date" required></div>
+                <div class="input-group"><i class="fas fa-comment-dots" style="top: 15px;"></i><textarea id="desc" placeholder="تفاصيل المناسبة..." rows="3" style="padding-right: 45px;"></textarea></div>
+                <button type="submit" id="submitBtn" class="submit-btn">إرسال الطلب</button>
+            </form>
+        </div>
     </div>
 
-    <div class="moments-container">
-        <h2 id="momH">معك في كل لحظة مميزة</h2>
-        <div class="grid-layout">
-            <div class="grid-item"><img src="84429-تجمع-أفراد-العائلة-فى-المناسبات.jpg"><div class="grid-overlay" id="m1">في فرحك</div></div>
-            <div class="grid-item"><img src="كلمات_عن_التخرج.jpg"><div class="grid-overlay" id="m2">في تخرجك</div></div>
-            <div class="grid-item big-grid"><img src="84429-تجمع-أفراد-العائلة-فى-المناسبات.jpg"><div class="grid-overlay" id="m3" style="font-size: 22px;">في مناسباتك العائلية</div></div>
-            <div class="grid-item"><img src="358087669.webp"><div class="grid-overlay" id="m4">تسويق منتجاتك</div></div>
-            <div class="grid-item"><img src="pngtree-night-landscape-with-a-lightning-tent-near-moun.jpg"><div class="grid-overlay" id="m5">في عالمك</div></div>
-        </div>
-    </div>
-</main>
+    <script>
+        const SUPABASE_URL = 'https://drvikrwgmtbyazemrfsp.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRydmlrcndnbXRieWF6ZW1yZnNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxODc2OTQsImV4cCI6MjA4MDc2MzY5NH0.51gKLrtPO7XOYpubfB2GC5ehpo0GljCv0hiYvlpkLTc';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-<footer class="footer">
-    <div class="footer-content">
-        <div>
-            <p id="fLeg" style="font-weight: 700; font-size: 18px; margin-bottom: 12px;">قانوني</p>
-            <p id="fTerm" style="cursor: pointer; opacity: 0.9;">شروط الاستخدام</p>
-            <p id="fPriv" style="cursor: pointer; opacity: 0.9;">سياسة الخصوصية</p>
-        </div>
-        <div class="footer-social">
-            <p id="followUs" style="font-weight: 700; margin-bottom: 12px;">تابعنا</p>
-            <a href="https://www.instagram.com/jamal360i" target="_blank">
-                <i class="fab fa-instagram"></i>
-            </a>
-        </div>
-    </div>
-</footer>
+        function openModal() { document.getElementById('bookingModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
-<div id="bookingModal">
-    <div class="modal-card">
-        <h2 id="modalT" style="text-align: center; color: var(--main-blue);">بيانات الحجز</h2>
-        <input type="text" id="full_name" placeholder="الاسم الكامل">
-        <input type="tel" id="phone" placeholder="رقم الجوال">
-        <input type="text" id="city" placeholder="المدينة">
-        <input type="date" id="event_date"> 
-        <textarea id="description" rows="3" placeholder="وصف الطلب..."></textarea>
-        <button class="btn-main" style="width: 100%; border-radius: 12px; margin-top: 10px;" id="modalBtn">إرسال الطلب</button>
-        <p onclick="document.getElementById('bookingModal').style.display='none'" style="text-align: center; cursor: pointer; color: #999; margin-top: 20px;">إلغاء</p>
-    </div>
-</div>
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "جاري الحفظ...";
 
-<script>
-    let currentLang = 'ar';
-    function toggleLang() {
-        currentLang = currentLang === 'ar' ? 'en' : 'ar';
-        document.getElementById('mainHtml').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-        // (تم اختصار الترجمة هنا لتوفير المساحة، الكود يدعم الوظيفة بالكامل)
-    }
-    function openM() { document.getElementById('bookingModal').style.display = 'flex'; }
-</script>
+            const { error } = await _supabase.from('bookings').insert([{
+                full_name: document.getElementById('name').value,
+                phone_number: document.getElementById('phone').value,
+                city: document.getElementById('city').value,
+                event_date: document.getElementById('date').value,
+                description: document.getElementById('desc').value
+            }]);
 
+            if (error) {
+                alert("حدث خطأ: " + error.message);
+            } else {
+                alert("تم إرسال طلبك بنجاح!");
+                closeModal();
+                e.target.reset();
+            }
+            btn.disabled = false;
+            btn.innerText = "إرسال الطلب";
+        });
+
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') { closeModal(); }
+        }
+    </script>
 </body>
 </html>
