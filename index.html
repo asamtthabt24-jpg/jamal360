@@ -136,6 +136,8 @@
         body.a11y-still *, body.a11y-still *::before, body.a11y-still *::after { animation: none !important; transition: none !important; }
         body.a11y-still .reveal { opacity: 1 !important; transform: none !important; }
         body.a11y-still .float-icon { display: none; }
+
+        .a11y-reading { outline: 5px solid #ffb400 !important; outline-offset: 6px; border-radius: 10px; background-color: rgba(255, 235, 59, 0.45) !important; transition: none !important; }
     </style>
 </head>
 <body>
@@ -367,7 +369,9 @@
 
             /* القراءة الصوتية */
             var readBtn = document.getElementById('a11yRead');
-            function stopSpeech() { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); readBtn.setAttribute('aria-pressed', 'false'); }
+            var readToken = 0;
+            function clearHighlight() { document.querySelectorAll('.a11y-reading').forEach(function (e) { e.classList.remove('a11y-reading'); }); }
+            function stopSpeech() { readToken++; clearHighlight(); if ('speechSynthesis' in window) window.speechSynthesis.cancel(); readBtn.setAttribute('aria-pressed', 'false'); }
             var arVoice = null;
             function pickArabicVoice() {
                 if (!('speechSynthesis' in window)) return null;
@@ -413,18 +417,65 @@
                 }
                 next();
             }
+            function readElements(els) {
+                if (!('speechSynthesis' in window)) { alert('المتصفح لا يدعم القراءة الصوتية'); return; }
+                arVoice = arVoice || pickArabicVoice();
+                if (!arVoice) {
+                    alert('لا يوجد صوت عربي مثبّت على هذا الجهاز.\nلتفعيله: من إعدادات الجهاز > اللغة / تحويل النص إلى كلام، ثبّت صوتًا عربيًا ثم أعد المحاولة.');
+                    return;
+                }
+                window.speechSynthesis.cancel();
+                clearHighlight();
+                var token = ++readToken, ei = 0, parts = [], pi = 0, cur = null;
+                readBtn.setAttribute('aria-pressed', 'true');
+                var smooth = !document.body.classList.contains('a11y-still');
+                function finish() { if (token === readToken) { clearHighlight(); readBtn.setAttribute('aria-pressed', 'false'); } }
+                function nextEl() {
+                    if (token !== readToken) return;
+                    if (cur) cur.classList.remove('a11y-reading');
+                    while (ei < els.length) {
+                        var el = els[ei++];
+                        var t = (el.innerText || '').replace(/\s+/g, ' ').trim();
+                        if (!t || el.offsetParent === null) continue;
+                        cur = el; parts = chunk(t); pi = 0;
+                        el.classList.add('a11y-reading');
+                        el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'center' });
+                        return nextPart();
+                    }
+                    finish();
+                }
+                function nextPart() {
+                    if (token !== readToken) return;
+                    if (pi >= parts.length) return nextEl();
+                    var u = new SpeechSynthesisUtterance(parts[pi++]);
+                    u.voice = arVoice; u.lang = arVoice.lang; u.rate = 0.95;
+                    u.onend = nextPart;
+                    u.onerror = function (e) { if (e.error === 'canceled' || e.error === 'interrupted') return; nextPart(); };
+                    window.speechSynthesis.speak(u);
+                }
+                nextEl();
+            }
             readBtn.addEventListener('click', function () {
                 if (readBtn.getAttribute('aria-pressed') === 'true') { stopSpeech(); return; }
-                var parts = [];
-                document.querySelectorAll('header .header-btn, .intro-section, .feature-text, .moments-section h2, .overlay, .footer').forEach(function (el) {
-                    var t = el.innerText.replace(/\s+/g, ' ').trim(); if (t) parts.push(t);
-                });
-                readBtn.setAttribute('aria-pressed', 'true');
-                speak(parts.join('. '), function () { readBtn.setAttribute('aria-pressed', 'false'); });
+                readElements(document.querySelectorAll('.header-btn, .intro-section h1, .intro-desc, .feature-text, .moments-section h2, .overlay, .footer-right p, .footer-column'));
             });
-            document.getElementById('a11yReadSel').addEventListener('click', function () {
-                var t = String(window.getSelection()).trim();
+            var lastSel = '';
+            document.addEventListener('selectionchange', function () {
+                var sel = window.getSelection();
+                var t = String(sel).trim();
+                if (!t) return;
+                var n = sel.anchorNode;
+                if (n && panel.contains(n.nodeType === 1 ? n : n.parentNode)) return;
+                lastSel = t;
+            });
+            var selBtn = document.getElementById('a11yReadSel');
+            ['mousedown', 'touchstart'].forEach(function (ev) {
+                selBtn.addEventListener(ev, function (e) { e.preventDefault(); }, { passive: false });
+            });
+            selBtn.addEventListener('click', function () {
+                var t = String(window.getSelection()).trim() || lastSel;
                 if (!t) { alert('حدد النص الذي تريد قراءته أولًا'); return; }
+                stopSpeech();
                 speak(t);
             });
 
